@@ -67,7 +67,7 @@ def extract_numeric_value(line):
         if '.' not in value:
             value = str(float(value) / 100)  # Assuming the number needs to be divided by 100 (for values like 3600 to 36.00)
         return round(float(value), 2)
-    return None
+    return jsonify({"error":"image is not clear","success":False})
 
 # API endpoint to process soil health card
 @app.route('/extract_soil_health_card', methods=['POST'])
@@ -76,19 +76,19 @@ def extract_soil_health_card():
         data = request.json
         image_url = data.get("image_url")
         if not image_url:
-            return jsonify({"error": "No image URL provided."}), 400
+            return jsonify({"error": "No image URL provided.","success":False}), 400
 
         # Extract text using OCR
         ocr_result = extract_text_from_image(image_url)
         if "error" in ocr_result:
-            return jsonify({"error": ocr_result["error"]}), 400
+            return jsonify({"error": ocr_result["error"],"success":False}), 400
 
         # Parse NPK and OC values from extracted text
         parsed_data = parse_soil_health_card(ocr_result["text"])
         return jsonify({"success": True, "data": parsed_data})
 
     except Exception as e:
-        return jsonify({"error": f"Unexpected error occurred: {str(e)}"}), 500
+        return jsonify({"error": f"Unexpected error occurred: {str(e)}","success":False}), 500
 
 
 if __name__ == "__main__":
